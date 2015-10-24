@@ -69,13 +69,16 @@ document.addEventListener("DOMContentLoaded", function() {
         targetX = oldX;
         targetY = oldY;
         if (setCoords) {
-            if (oldX < mouseX) targetX = oldX + mouseX / speed * dt;
-            else if (oldX > mouseX) targetX = oldX - mouseX / speed * dt;
-            if (oldY < mouseY) targetY = oldY + mouseY / speed * dt;
-            else if (oldY > mouseY) targetY = oldY - mouseY / speed * dt;
+            var dx = mouseX - oldX;
+            var dy = mouseY - oldY;
+            var len = Math.sqrt(dx * dx + dy * dy);
+            if (len != 0) {
+                oldX = dx / len * speed * dt;
+                oldY = dy / len * speed * dt;
+            }
         }
-        if (Math.abs(mouseX - targetX) <= speed) mouseX = targetX;
-        if (Math.abs(mouseY - targetY) <= speed) mouseY = targetY;
+        if (Math.abs(mouseX - targetX) <= speed) targetX = mouseX;
+        if (Math.abs(mouseY - targetY) <= speed) targetX = mouseY;
         realX = targetX - monster.width / 2;
         realY = targetY - monster.height / 2;
         oldX = targetX;
