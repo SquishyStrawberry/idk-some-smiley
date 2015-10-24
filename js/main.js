@@ -1,13 +1,22 @@
+/* jshint undef: true, unused: true */
+/* globals document, window, Image, Promise, prompt, console */
 document.addEventListener("DOMContentLoaded", function() {
     var canvas, context;
-    var mouseX = 128,
-        mouseY = 128,
-        x = 128,
-        y = 128,
-        setCoords = true;
-    var monster, speed;
-
+    var setCoords = true;
     var __images = {};
+    var player = {
+        x: 128,
+        y: 128,
+        vel: {
+            x: 0,
+            y: 0
+        },
+        image: null
+    };
+    var mouse = {
+        x: 128,
+        y: 128
+    };
 
     window.addEventListener("resize", function() {
         canvas.width = window.innerWidth;
@@ -16,18 +25,18 @@ document.addEventListener("DOMContentLoaded", function() {
 
     window.addEventListener("mousemove", function(e) {
         if (setCoords) {
-            mouseX = e.pageX;
-            mouseY = e.pageY;
+            mouse.x = e.pageX;
+            mouse.y = e.pageY;
         }
     });
     
     window.addEventListener("click", function() {
         setCoords = !setCoords;
         if (setCoords) {
-            monster = loadImage("./js/assets/sadFace.png");
+            player.image = loadImage("./js/assets/sadFace.png");
         }
         else {
-            monster = loadImage("./js/assets/happyFace.png");
+            player.image = loadImage("./js/assets/happyFace.png");
         }
     });
 
@@ -47,6 +56,22 @@ document.addEventListener("DOMContentLoaded", function() {
         return prom;
     }
 
+    function moveTowards(seeker, target, multiplyBy) {
+        var dx = target.x - seeker.x;
+        var dy = target.y - seeker.y;
+        var len = Math.sqrt(dx * dx + dy * dy);
+        if (len !== 0) {
+            seeker.x += dx / len * seeker.speed * (multiplyBy || 1);
+            seeker.y += dy / len * seeker.speed * (multiplyBy || 1);
+        }
+        return len !== 0;
+    }
+
+    function alignIfClose(seeker, target) {
+        if (Math.abs(target.x - seeker.x) <= seeker.speed) seeker.x = target.x;
+        if (Math.abs(target.y - seeker.y) <= seeker.speed) seeker.y = target.y;
+    }
+
     function init() {
         canvas = document.createElement("canvas");
         context = canvas.getContext("2d");
@@ -59,12 +84,12 @@ document.addEventListener("DOMContentLoaded", function() {
         while (true) {
             var temp = prompt("Enter the speed of the smiley");
             if (isNaN(temp)) continue;
-            speed = +temp;
+            player.speed = +temp;
             break;
         }
-        Promise.all(images).then(function(loaded) {
+        Promise.all(images).then(function() {
             console.info("Starting game");
-            monster = loadImage("./js/assets/sadFace.png");
+            player.image = loadImage("./js/assets/sadFace.png");
             window.requestAnimationFrame(loop);
         });
         document.body.appendChild(canvas);
@@ -72,23 +97,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function update(dt) {
         if (setCoords) {
-            var dx = mouseX - x;
-            var dy = mouseY - y;
-            var len = Math.sqrt(dx * dx + dy * dy);
-            if (len !== 0) {
-                x += dx / len * speed * dt;
-                y += dy / len * speed * dt;
-            }
+            moveTowards(player, mouse, dt);
         }
-        if (Math.abs(mouseX - x) <= speed) x = mouseX;
-        if (Math.abs(mouseY - y) <= speed) y = mouseY;
+        alignIfClose(player, mouse);
     }
     
     function draw() {
-        var realX = x - monster.width / 2,
-            realY = y - monster.height / 2;
+        var realX = player.x - player.image.width / 2,
+            realY = player.y - player.image.height / 2;
         context.clearRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(monster,
+        context.drawImage(player.image,
                           realX, realY);
         context.beginPath();
         context.font = "15px Monospace";
@@ -98,8 +116,8 @@ document.addEventListener("DOMContentLoaded", function() {
         context.lineWidth = 5;
         context.strokeStyle = "tomato";
         if (setCoords) {
-            context.moveTo(x, y);
-            context.lineTo(mouseX, mouseY);
+            context.moveTo(player.x, player.y);
+            context.lineTo(mouse.x, mouse.y);
         }
         context.stroke();
     }
