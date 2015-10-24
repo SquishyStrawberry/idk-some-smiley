@@ -1,20 +1,19 @@
-/* jshint undef: true, unused: true */
-/* globals document, window, Image, Promise, prompt, console */
+/* jshint undef: true, unused: true, eqeqeq: true */
+/* globals document, window, Image, Promise, prompt */
+
 document.addEventListener("DOMContentLoaded", function() {
-    var canvas, context;
+    var canvas, context, lastCall;
     var __images = {};
     var player = {
-        x: 128,
-        y: 128,
-        vel: {
-            x: 0,
-            y: 0
-        },
+        x: null,
+        y: null,
         image: null
     };
     var mouse = {
-        x: 128,
-        y: 128
+        x: null,
+        y: null,
+        width: 1,
+        height: 1
     };
 
     window.addEventListener("resize", function() {
@@ -23,8 +22,9 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     window.addEventListener("mousemove", function(e) {
-        mouse.x = e.pageX;
-        mouse.y = e.pageY;
+        var r = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - r.left;
+        mouse.y = e.clientY - r.top;
     });
 
     function loadImage(path) {
@@ -43,20 +43,44 @@ document.addEventListener("DOMContentLoaded", function() {
         return prom;
     }
 
-    function moveTowards(seeker, target) {
+    function moveTowards(seeker, target, dt) {
         var dx = target.x - seeker.x;
         var dy = target.y - seeker.y;
         var len = Math.sqrt(dx * dx + dy * dy);
         if (len !== 0) {
-            seeker.x += dx / len * seeker.speed;
-            seeker.y += dy / len * seeker.speed;
+            seeker.x += dx / len * seeker.speed * dt;
+            seeker.y += dy / len * seeker.speed * dt;
         }
         return len !== 0;
     }
 
+    function areColliding(seeker, target) { // jshint ignore: line
+        return !(
+            ((seeker.y + seeker.height) < (target.y)) ||
+            (seeker.y > (target.y + target.height)) ||
+            ((seeker.x + seeker.width) < target.x) ||
+            (seeker.x > (target.x + target.width))
+        ); 
+    }
+
     function alignIfClose(seeker, target) {
-        if (Math.abs(target.x - seeker.x) <= seeker.speed) seeker.x = target.x;
-        if (Math.abs(target.y - seeker.y) <= seeker.speed) seeker.y = target.y;
+        // Assumes x, y to be the center of the object
+        var seekerCenter = {
+            x: seeker.x,
+            y: seeker.y,
+            width: 5,
+            height: 5
+        };
+        var targetCenter = {
+            x: target.x,
+            y: target.y,
+            width: 5,
+            height: 5
+        };
+        if (areColliding(seekerCenter, targetCenter)) {
+            seeker.x = target.x;
+            seeker.y = target.y;
+        }
     }
 
     function init() {
@@ -65,22 +89,27 @@ document.addEventListener("DOMContentLoaded", function() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         while (true) {
-            var temp = prompt("Enter the speed of the smiley");
+            var temp = prompt("Enter the pixels per second of the smiley");
             if (isNaN(temp)) continue;
             player.speed = +temp;
             break;
         }
         loadImage("./assets/player.png").then(function(img) {
-            console.info("Starting game");
             player.image = img;
+            player.width = player.image.width;
+            player.height = player.image.height;
+            player.x = ~~(Math.random() * (canvas.width - player.width)) + player.width;
+            player.y = ~~(Math.random() * (canvas.height - player.height)) + player.height;
+            mouse.x = player.x;
+            mouse.y = player.y;
             window.requestAnimationFrame(loop);
         });
         document.body.appendChild(canvas);
     }
 
-    function update() {
-        moveTowards(player, mouse);
-        alignIfClose(player, mouse);
+    function update(dt) {
+        moveTowards(player, mouse, dt);
+        alignIfClose(player, mouse, dt);
     }
     
     function draw() {
@@ -101,9 +130,12 @@ document.addEventListener("DOMContentLoaded", function() {
         context.stroke();
     }
 
-    function loop() {
-        update();
-        draw();
+    function loop(time) {
+        if (typeof lastCall !== "undefined") {
+            update((time - lastCall) / 1000);
+            draw();
+        }
+        lastCall = time;
         window.requestAnimationFrame(loop);
     }
 
