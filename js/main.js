@@ -56,13 +56,13 @@ document.addEventListener("DOMContentLoaded", function() {
         return prom;
     }
 
-    function moveTowards(seeker, target, multiplyBy) {
+    function moveTowards(seeker, target) {
         var dx = target.x - seeker.x;
         var dy = target.y - seeker.y;
         var len = Math.sqrt(dx * dx + dy * dy);
         if (len !== 0) {
-            seeker.x += dx / len * seeker.speed * (multiplyBy || 1);
-            seeker.y += dy / len * seeker.speed * (multiplyBy || 1);
+            seeker.x += dx / len * seeker.speed;
+            seeker.y += dy / len * seeker.speed;
         }
         return len !== 0;
     }
@@ -95,9 +95,9 @@ document.addEventListener("DOMContentLoaded", function() {
         document.body.appendChild(canvas);
     }
 
-    function update(dt) {
+    function update() {
         if (setCoords) {
-            moveTowards(player, mouse, dt);
+            moveTowards(player, mouse);
         }
         alignIfClose(player, mouse);
     }
@@ -123,8 +123,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function loop() {
-        // FIXME Add DeltaTime
-        update(1);
+        update();
         draw();
         window.requestAnimationFrame(loop);
     }
