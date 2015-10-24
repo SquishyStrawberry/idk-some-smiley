@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
         if (Math.abs(mouseX - targetX) <= speed) targetX = mouseX;
-        if (Math.abs(mouseY - targetY) <= speed) targetX = mouseY;
+        if (Math.abs(mouseY - targetY) <= speed) targetY = mouseY;
         realX = targetX - monster.width / 2;
         realY = targetY - monster.height / 2;
         oldX = targetX;
