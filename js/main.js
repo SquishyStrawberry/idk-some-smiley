@@ -1,6 +1,9 @@
 /* jshint undef: true, unused: true, eqeqeq: true */
 /* globals document, window, Image, Promise, prompt */
 
+// Global on purpose
+var __drawDebug = false;
+
 document.addEventListener("DOMContentLoaded", function() {
     var canvas, context, lastCall;
     var __images = {};
@@ -14,6 +17,10 @@ document.addEventListener("DOMContentLoaded", function() {
         y: null,
         width: 1,
         height: 1
+    };
+    var collision = {
+        width: 5,
+        height: 5
     };
 
     window.addEventListener("resize", function() {
@@ -68,14 +75,14 @@ document.addEventListener("DOMContentLoaded", function() {
         var seekerCenter = {
             x: seeker.x,
             y: seeker.y,
-            width: 5,
-            height: 5
+            width: collision.width,
+            height: collision.height
         };
         var targetCenter = {
             x: target.x,
             y: target.y,
-            width: 5,
-            height: 5
+            width: collision.width,
+            height: collision.height
         };
         if (areColliding(seekerCenter, targetCenter)) {
             seeker.x = target.x;
@@ -115,18 +122,24 @@ document.addEventListener("DOMContentLoaded", function() {
     function draw() {
         var realX = player.x - player.image.width / 2,
             realY = player.y - player.image.height / 2;
+        context.beginPath();
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.drawImage(player.image,
                           realX, realY);
-        context.beginPath();
-        context.font = "15px Monospace";
-        context.lineWidth = 1;
-        context.strokeText("Y: " + realY.toString(), realX, realY);
-        context.strokeText("X: " + realX.toString(), realX, realY - 15);
-        context.lineWidth = 5;
-        context.strokeStyle = "rebeccapurple";
-        context.moveTo(player.x, player.y);
-        context.lineTo(mouse.x, mouse.y);
+        if (__drawDebug) {
+            context.font = "15px Monospace";
+            context.lineWidth = 1;
+            context.strokeStyle = "black";
+            context.strokeText("Y: " + realY.toString(), realX, realY);
+            context.strokeText("X: " + realX.toString(), realX, realY - 15);
+            context.lineWidth = 5;
+            context.strokeStyle = "blue";
+            context.strokeRect(player.x, player.y, collision.width, collision.height);
+            context.strokeRect(mouse.x, mouse.y, collision.width, collision.height);
+            context.strokeStyle = "tomato";
+            context.moveTo(player.x, player.y);
+            context.lineTo(mouse.x, mouse.y);
+        }
         context.stroke();
     }
 
