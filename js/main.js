@@ -72,9 +72,9 @@ document.addEventListener("DOMContentLoaded", function() {
             var dx = mouseX - oldX;
             var dy = mouseY - oldY;
             var len = Math.sqrt(dx * dx + dy * dy);
-            if (len != 0) {
-                oldX = dx / len * speed * dt;
-                oldY = dy / len * speed * dt;
+            if (len !== 0) {
+                targetX = dx / len * speed * dt;
+                targetY = dy / len * speed * dt;
             }
         }
         if (Math.abs(mouseX - targetX) <= speed) targetX = mouseX;
