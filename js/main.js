@@ -2,7 +2,6 @@
 /* globals document, window, Image, Promise, prompt, console */
 document.addEventListener("DOMContentLoaded", function() {
     var canvas, context;
-    var setCoords = true;
     var __images = {};
     var player = {
         x: 128,
@@ -24,20 +23,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     window.addEventListener("mousemove", function(e) {
-        if (setCoords) {
-            mouse.x = e.pageX;
-            mouse.y = e.pageY;
-        }
-    });
-    
-    window.addEventListener("click", function() {
-        setCoords = !setCoords;
-        if (setCoords) {
-            player.image = loadImage("./js/assets/sadFace.png");
-        }
-        else {
-            player.image = loadImage("./js/assets/happyFace.png");
-        }
+        mouse.x = e.pageX;
+        mouse.y = e.pageY;
     });
 
     function loadImage(path) {
@@ -77,28 +64,22 @@ document.addEventListener("DOMContentLoaded", function() {
         context = canvas.getContext("2d");
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        var images = [
-            "./js/assets/happyFace.png",
-            "./js/assets/sadFace.png"
-        ].map(loadImage);
         while (true) {
             var temp = prompt("Enter the speed of the smiley");
             if (isNaN(temp)) continue;
             player.speed = +temp;
             break;
         }
-        Promise.all(images).then(function() {
+        loadImage("./assets/player.png").then(function(img) {
             console.info("Starting game");
-            player.image = loadImage("./js/assets/sadFace.png");
+            player.image = img;
             window.requestAnimationFrame(loop);
         });
         document.body.appendChild(canvas);
     }
 
     function update() {
-        if (setCoords) {
-            moveTowards(player, mouse);
-        }
+        moveTowards(player, mouse);
         alignIfClose(player, mouse);
     }
     
@@ -114,11 +95,9 @@ document.addEventListener("DOMContentLoaded", function() {
         context.strokeText("Y: " + realY.toString(), realX, realY);
         context.strokeText("X: " + realX.toString(), realX, realY - 15);
         context.lineWidth = 5;
-        context.strokeStyle = "tomato";
-        if (setCoords) {
-            context.moveTo(player.x, player.y);
-            context.lineTo(mouse.x, mouse.y);
-        }
+        context.strokeStyle = "rebeccapurple";
+        context.moveTo(player.x, player.y);
+        context.lineTo(mouse.x, mouse.y);
         context.stroke();
     }
 
