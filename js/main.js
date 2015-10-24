@@ -4,9 +4,8 @@ document.addEventListener("DOMContentLoaded", function() {
         mouseY = 128,
         x = 128,
         y = 128,
-        speed = 100,
         setCoords = true;
-    var monster;
+    var monster, speed;
 
     var __images = {};
 
@@ -57,6 +56,12 @@ document.addEventListener("DOMContentLoaded", function() {
             "./js/assets/happyFace.png",
             "./js/assets/sadFace.png"
         ].map(loadImage);
+        while (true) {
+            var temp = prompt("Enter the speed of the smiley");
+            if (isNaN(temp)) continue;
+            speed = +temp;
+            break;
+        }
         Promise.all(images).then(function(loaded) {
             console.info("Starting game");
             monster = loadImage("./js/assets/sadFace.png");
