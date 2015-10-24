@@ -2,11 +2,11 @@ document.addEventListener("DOMContentLoaded", function() {
     var canvas, context;
     var mouseX = 128,
         mouseY = 128,
-        oldX = 128,
-        oldY = 128,
+        x = 128,
+        y = 128,
         speed = 100,
         setCoords = true;
-    var monster, targetX, targetY, realX, realY;
+    var monster;
 
     var __images = {};
 
@@ -66,26 +66,22 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function update(dt) {
-        targetX = oldX;
-        targetY = oldY;
         if (setCoords) {
-            var dx = mouseX - oldX;
-            var dy = mouseY - oldY;
+            var dx = mouseX - x;
+            var dy = mouseY - y;
             var len = Math.sqrt(dx * dx + dy * dy);
             if (len !== 0) {
-                targetX = dx / len * speed * dt;
-                targetY = dy / len * speed * dt;
+                x = dx / len * speed * dt;
+                y = dy / len * speed * dt;
             }
         }
-        if (Math.abs(mouseX - targetX) <= speed) targetX = mouseX;
-        if (Math.abs(mouseY - targetY) <= speed) targetY = mouseY;
-        realX = targetX - monster.width / 2;
-        realY = targetY - monster.height / 2;
-        oldX = targetX;
-        oldY = targetY;
+        if (Math.abs(mouseX - x) <= speed) x = mouseX;
+        if (Math.abs(mouseY - y) <= speed) y = mouseY;
     }
     
     function draw() {
+        var realX = x - monster.width / 2,
+            realY = y - monster.height / 2;
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.drawImage(monster,
                           realX, realY);
@@ -97,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function() {
         context.lineWidth = 5;
         context.strokeStyle = "tomato";
         if (setCoords) {
-            context.moveTo(targetX, targetY);
+            context.moveTo(x, y);
             context.lineTo(mouseX, mouseY);
         }
         context.stroke();
