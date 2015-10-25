@@ -34,6 +34,10 @@ document.addEventListener("DOMContentLoaded", function() {
         mouse.y = e.clientY - r.top;
     });
 
+    window.addEventListener("keypress", function(e) {
+        if (e.key === " ") __drawDebug = !__drawDebug;
+    });
+
     function loadImage(path) {
         if (path in __images) return __images[path];
         var img = new Image();
@@ -128,10 +132,6 @@ document.addEventListener("DOMContentLoaded", function() {
                           realX, realY);
         if (__drawDebug) {
             context.font = "15px Monospace";
-            context.lineWidth = 1;
-            context.strokeStyle = "black";
-            context.strokeText("Y: " + realY.toString(), realX, realY);
-            context.strokeText("X: " + realX.toString(), realX, realY - 15);
             context.lineWidth = 5;
             context.strokeStyle = "blue";
             context.strokeRect(player.x, player.y, collision.width, collision.height);
@@ -139,6 +139,14 @@ document.addEventListener("DOMContentLoaded", function() {
             context.strokeStyle = "tomato";
             context.moveTo(player.x, player.y);
             context.lineTo(mouse.x, mouse.y);
+            context.stroke();
+            context.beginPath();
+            context.lineWidth = 1;
+            context.strokeStyle = "black";
+            context.strokeText("Y: " + realY.toString(), realX, realY);
+            context.strokeText("X: " + realX.toString(), realX, realY - 15);
+            context.strokeText("Y: " + mouse.y.toString(), mouse.x, mouse.y);
+            context.strokeText("X: " + mouse.x.toString(), mouse.x, mouse.y - 15);
         }
         context.stroke();
     }
